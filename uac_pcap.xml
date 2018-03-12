@@ -27,12 +27,13 @@
 
       INVITE sip:[field1]@[remote_ip]:[remote_port] SIP/2.0
       Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
-      From: "[field0]" <sip:[field0]@[local_ip]:[local_port]>;tag=[call_number]
+      From: "[field0]" <sip:[field0]@[remote_ip]:[remote_port]>;tag=[call_number]
       To: "[field1]" <sip:[field1]@[remote_ip]:[remote_port]>
       Call-ID: [call_id]
       CSeq: 1 INVITE
-      Contact: sip:[field0]@[local_ip]:[local_port]
+      Contact: <sip:[field0]@[local_ip]:[local_port]>
       Max-Forwards: 70
+      Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, NOTIFY, MESSAGE, SUBSCRIBE, INFO
       Subject: Performance Test
       Content-Type: application/sdp
       Content-Length: [len]
@@ -42,7 +43,7 @@
       s=-
       c=IN IP[local_ip_type] [local_ip]
       t=0 0
-      m=audio [auto_media_port] RTP/AVP 8
+      m=audio [auto_media_port] RTP/AVP 8 101
       a=rtpmap:8 PCMA/8000
       a=rtpmap:101 telephone-event/8000
       a=fmtp:101 0-11,16
@@ -56,10 +57,13 @@
   <recv response="180" optional="true">
   </recv>
 
+  <recv response="183" optional="true">
+  </recv>
+
   <!-- By adding rrs="true" (Record Route Sets), the route sets         -->
   <!-- are saved and used for following messages sent. Useful to test   -->
   <!-- against stateful SIP proxies/B2BUAs.                             -->
-  <recv response="200" rtd="true" crlf="true">
+  <recv response="200" crlf="true">
   </recv>
 
   <!-- Packet lost can be simulated in any send/recv message by         -->
@@ -69,7 +73,7 @@
 
       ACK sip:[field1]@[remote_ip]:[remote_port] SIP/2.0
       Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
-      From: "[field0]" <sip:[field0]@[local_ip]:[local_port]>;tag=[call_number]
+      From: "[field0]" <sip:[field0]@[remote_ip]:[remote_port]>;tag=[call_number]
       To: "[field1]" <sip:[field1]@[remote_ip]:[remote_port]>[peer_tag_param]
       Call-ID: [call_id]
       CSeq: 1 ACK
@@ -84,7 +88,8 @@
   <!-- Play a pre-recorded PCAP file (RTP stream)                       -->
   <nop>
     <action>
-      <exec play_pcap_audio="pcap/g711a.pcap"/>
+      <!-- <exec play_pcap_audio="pcap/g711a.pcap"/> -->
+      <exec rtp_stream="pcap/zhongguomei-g711a.wav,-1,8" />
     </action>
   </nop>
 
@@ -101,7 +106,7 @@
   </nop>
 	-->
 	
-  <pause milliseconds="5000000"/>
+  <pause milliseconds="180000"/>
 
   <!-- The 'crlf' option inserts a blank line in the statistics report. -->
   <send retrans="500">
@@ -109,7 +114,7 @@
 
       BYE sip:[service]@[remote_ip]:[remote_port] SIP/2.0
       Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
-      From: "[field0]" <sip:[field0]@[local_ip]:[local_port]>;tag=[call_number]
+      From: "[field0]" <sip:[field0]@[remote_ip]:[remote_port]>;tag=[call_number]
       To: "[field1]" <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]
       Call-ID: [call_id]
       CSeq: 2 BYE
