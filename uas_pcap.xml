@@ -35,18 +35,23 @@
       s=-
       c=IN IP[media_ip_type] [media_ip]
       t=0 0
-      m=audio [media_port] RTP/AVP 0
-      a=rtpmap:0 PCMU/8000
+      m=audio [media_port] RTP/AVP 8
+      a=rtpmap:8 PCMA/8000
     ]]>
 </send>
 <recv request="ACK" rtd="true" crlf="true">
   </recv>
+<!-- <pause milliseconds="10000"/> -->
+  <nop>
+    <action>
+      <!-- <exec play_pcap_audio="pcap/g711a.pcap",loopcount="3"/> -->
+      <!-- <exec rtp_stream="pcap/ForAlice-8k-1.wav" /> -->
+      <exec rtp_stream="pcap/unioncast.pcm.wav,8" />
+    </action>
+  </nop>
 
-  <pause milliseconds="1000"/>
 
-
-
-  <pause milliseconds="10000"/>
+  <!-- <pause milliseconds="10000"/> -->
 
 <recv request="BYE">
   </recv>
