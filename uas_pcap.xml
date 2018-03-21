@@ -39,6 +39,7 @@
       a=rtpmap:8 PCMA/8000
     ]]>
 </send>
+
 <recv request="ACK" crlf="true" rtd="invite">
   </recv>
 <!-- <pause milliseconds="10000"/> -->
@@ -46,6 +47,7 @@
     <action>
       <!-- <exec play_pcap_audio="pcap/ForAlice-8k-1-g711a.wav"/> -->
       <!-- <exec rtp_stream="pcap/ForAlice-8k-1.wav" /> -->
+
       <!-- <exec rtp_stream="pcap/ForAlice-8k-1-g711a.wav,3,8" /> -->
       <exec rtp_stream="pcap/zhongguomei-g711a.wav,3,8" />
     </action>
