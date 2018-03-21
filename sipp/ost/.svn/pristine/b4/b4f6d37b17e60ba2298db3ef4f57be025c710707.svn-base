@@ -1,0 +1,11 @@
+sipp: The following events occured:
+2017-08-20	01:34:27:915	1503164067.915139: Aborting call on unexpected message for Call-Id '1-21048@192.168.27.1': while expecting '407' (index 6), received 'SIP/2.0 180 Ringing
+Via: SIP/2.0/UDP 192.168.27.1:12346;branch=z9hG4bK-21048-1-4
+From: 1000 <sip:1000@192.168.27.1:12346>;tag=1
+To: 2000 <sip:2000@192.168.27.149:5060>;tag=17297SIPpTag012
+Call-ID: 1-21048@192.168.27.1
+CSeq: 1 INVITE
+Contact: <sip:192.168.27.129:12346;transport=UDP>
+Content-Length: 0
+
+'.

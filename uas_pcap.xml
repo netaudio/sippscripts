@@ -4,7 +4,7 @@
 
 <scenario name="Basic UAS responder">
 
-<recv request="INVITE" crlf="true">
+<recv request="INVITE" crlf="true" start_rtd="invite">
 </recv>
 <send>
     <![CDATA[
@@ -35,13 +35,25 @@
       s=-
       c=IN IP[media_ip_type] [media_ip]
       t=0 0
-      m=audio [media_port] RTP/AVP 8 0
+      m=audio [media_port] RTP/AVP 8
       a=rtpmap:8 PCMA/8000
-      a=rtpmap:0 PCMU/8000
     ]]>
 </send>
-<recv request="ACK" optional="true" rtd="true" crlf="true">
+<recv request="ACK" crlf="true" rtd="invite">
   </recv>
+<!-- <pause milliseconds="10000"/> -->
+  <nop>
+    <action>
+      <!-- <exec play_pcap_audio="pcap/ForAlice-8k-1-g711a.wav"/> -->
+      <!-- <exec rtp_stream="pcap/ForAlice-8k-1.wav" /> -->
+      <!-- <exec rtp_stream="pcap/ForAlice-8k-1-g711a.wav,3,8" /> -->
+      <exec rtp_stream="pcap/zhongguomei-g711a.wav,3,8" />
+    </action>
+  </nop>
+
+
+  <!-- <pause milliseconds="10000"/> -->
+
 <recv request="BYE">
   </recv>
 <send>

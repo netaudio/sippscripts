@@ -1,0 +1,110 @@
+<?xmlversion="1.0"encoding="ISO-8859-1"?>
+<!DOCTYPEscenario SYSTEM "sipp.dtd">
+<!--This program is free software; you can redistribute it and/or-->
+<!--modify it under the terms of the GNU General Public License as -->
+<!--published by the Free Software Foundation; either version 2of the -->
+<!--License, or (atyour option) any later version. -->
+<!---->
+<!--This program is distributed in the hope that it will be useful, -->
+<!--but WITHOUT ANY WARRANTY; without even the implied warranty of -->
+<!--MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+<!--GNU General Public License for more details. -->
+<!---->
+<!--You should have received a copy of the GNU General Public License -->
+<!--along with this program; if not, write to the -->
+<!--Free Software Foundation, Inc., -->
+<!--59Temple Place, Suite 330, Boston, MA 02111-1307USA -->-->
+<!--<!--<!--
+-->
+Sipp default 'uas' scenario.
+-->
+-->
+<scenario name="BasicUAS responder">
+<!--By adding rrs="true"(RecordRoute Sets), the route sets
+<!--are saved and used for following messages sent. Useful to test 
+<!--against stateful SIP proxies/B2BUAs.-->-->
+-->
+<recv request="INVITE"crlf="true"></recv>
+<!--The '[last_*]'keyword is replaced automatically by the
+<!--specified header if it was present in the last message received 
+<!--(exceptif it was a retransmission). If the header was not 
+<!--present or if no message has been received, the '[last_*]'
+<!--keyword is discarded, and all bytes until the end of the line 
+<!--are also discarded. 
+<!--
+<!--If the specified header was present several times in the
+<!--message, all occurences are concatenated (CRLFseperated) 
+<!--to be used in place of the '[last_*]'keyword.
+
+<send>
+<![CDATA[
+SIP/2.0100Trying [last_Via:][last_From:]
+[last_To:];tag=[call_number][last_Call-ID:][last_CSeq:]
+Contact:<sip:[local_ip]:[local_port];transport=[transport]>Content-Length:0]]></send>
+<send>
+<![CDATA[
+SIP/2.0180Ringing [last_Via:][last_From:]
+[last_To:];tag=[call_number][last_Call-ID:]
+-->-->-->-->-->
+-->-->-->-->
+-->
+[last_CSeq:]
+Contact:<sip:[local_ip]:[local_port];transport=[transport]>Content-Length:0
+]]>
+</send>
+<send retrans="500">
+    <![CDATA[
+        SIP/2.0200OK
+        [last_Via:]
+        [last_From:]
+        [last_To:];tag=[call_number]
+        [last_Call-ID:]
+        [last_CSeq:]
+        Contact:<sip:[local_ip]:[local_port];transport=[transport]>Content-Type:application/sdp
+        Content-Length:[len]
+        v=0
+        o=user1536557652353687637IN IP[local_ip_type][local_ip]s=-
+        b=AS:84
+        c=INIP[local_ip_type][local_ip]
+        t=00
+        a=X-nat:0
+        m=audio[auto_media_port]RTP/AVP98
+        c=INIP[local_ip_type][local_ip]
+        b=TIAS:64000
+        a=rtcp:6001IN IP[local_ip_type][local_ip]
+        a=sendrecv
+        a=rtpmap:98iLBC/8000
+        a=fmtp:98mod=30
+    ]]>
+</send>
+<recv request="ACK" rtd="true" crlf="true">
+</recv>
+<pause milliseconds="5000"/>
+<nop>
+<action>
+<execplay_pcap_audio="pcap/cc.pcap"/>
+</action>
+</nop>
+<pause milliseconds="50000"/>
+<recv request="BYE">
+</recv>
+<send>
+    <![CDATA[
+        SIP/2.0200OK
+        [last_Via:]
+        [last_From:]
+        [last_To:]
+        [last_Call-ID:]
+        [last_CSeq:]
+        Contact:<sip:[local_ip]:[local_port];transport=[transport]>
+        Content-Length:0
+    ]]>
+</send>
+<!--Keep the call open for a while in case the 200is lost to be
+<!--able to retransmit it if we receive the BYE again.
+<pausemilliseconds="4000"/>-->-->
+<!--definition of the response time repartition table (unitis ms) -->
+<ResponseTimeRepartition value="10,20, 30, 40, 50, 100, 150, 200"/>
+<!--definition of the call length repartition table (unitis ms) -->
+<CallLengthRepartition value="10,50, 100, 500, 1000, 5000, 10000"/>
+</scenario>

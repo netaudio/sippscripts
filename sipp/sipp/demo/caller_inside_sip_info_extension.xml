@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE scenario SYSTEM "sipp.dtd">
+
+<!--»ù±¾ºô½Ð³¡¾°¿ªÊ¼-ims×÷ÎªÖ÷½Ð²àÈë¾Öºô½Ð-->
+<scenario name="caller_outside">
+
+<!--	·¢ËÍINVITEÏûÏ¢£¬Éè¶¨ÖØ´«¶¨Ê±Æ÷Îª500ms£¬Í¬Ê±Æô¶¯¶¨Ê±Æ÷invite-->
+	<send start_rtd="invite">
+    <![CDATA[
+
+      INVITE sip:[field1]@[local_ip] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: "[field0]" <sip:[field0]@[local_ip]>;tag=[call_number]zhg8
+      To: "[field1]"<sip:[field1]@[local_ip]>
+      Call-ID: [call_id]
+      CSeq: 1 INVITE
+      Contact: <sip:[field0]@[local_ip]:[local_port]>
+      User-Agent: SIPp client mode version [sipp_version]
+			Allow: INVITE,PRACK,ACK,UPDATE,CANCEL,BYE,OPTIONS,INFO,SUBSCRIBE,REFER,NOTIFY
+      Max-Forwards: 70
+      Content-Type: application/sdp
+      Content-Length: [len]
+
+      v=0
+      o=SIPp [pid][call_number] 8[pid][call_number]8 IN IP[local_ip_type] [local_ip]
+      s=SIPp Normal Call Test
+      t=0 0
+      m=audio [media_port] RTP/AVP 8 101
+      c=IN IP[media_ip_type] [media_ip]
+			a=rtpmap:8 PCMA/8000/1
+			a=rtpmap:101 telephone-event/8000
+			a=sendrecv
+    ]]>
+ 	</send>
+
+<!--1xxÏìÓ¦¾ùÎª¿ÉÑ¡½ÓÊÕÏûÏ¢£¬ÇÒ½ÓÊÕµ½ÁÙÊ±ÏìÓ¦ºó£¬¼´¿ÉÍ£Ö¹invite¶¨Ê±Æ÷µÄ¼ÆÊ±-->
+<!--ÊÕµ½4xx/5xx´íÎóÏìÓ¦ºó£¬Ö±½Ó½øÈëºô½ÐÊ§°Ü-->
+  <recv response="100" optional="true" rtd="invite">
+  </recv>	
+
+  <recv response="183" optional="true" rtd="invite" next="normal">
+  </recv>
+  
+  <recv hide="true" response="403" optional="true" rtd="invite" next="err_ack">
+  </recv>  
+
+  <recv hide="true" response="480" optional="true" rtd="invite" next="err_ack">
+  </recv>
+
+  <recv hide="true" response="486" optional="true" rtd="invite" next="err_ack">
+  </recv>
+
+  <recv hide="true" response="500" optional="true" rtd="invite" next="err_ack">
+  </recv>
+
+  <recv  hide="true" response="503" optional="true" rtd="invite" next="err_ack">
+  </recv>
+
+  <recv response="180"  optional="true" rtd="invite" next="normal">
+  </recv> 
+ 
+  <label id="normal"/>
+  <recv response="200" rtd="invite">
+  </recv>
+  
+  
+  <send>
+    <![CDATA[
+      ACK sip:[field1]@[local_ip]:[local_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: "[field0]" <sip:[field0]@[local_ip]>;tag=[call_number]zhg8
+      To: "[field1]"<sip:[field1]@[local_ip]>[peer_tag_param]
+      Call-ID: [call_id]
+      CSeq: 1 ACK
+      Contact: <sip:[field0]@[local_ip]:[local_port]>
+      Max-Forwards: 70
+      Subject: normal call scenario by wangwei
+      user-agent: SIPp client mode version [sipp_version]
+      Content-Length: 0
+
+    ]]>
+  </send>
+  
+	<pause  milliseconds="2000"/>     
+     
+<send>
+    <![CDATA[
+      INFO sip:[field1]@[local_ip]:[local_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: "[field0]" <sip:[field0]@[local_ip]>;tag=[call_number]zhg8
+      To: "[field1]"<sip:[field1]@[local_ip]>[peer_tag_param]
+      Call-ID: [call_id]
+      CSeq: 2 INFO
+      Contact: <sip:[field0]@[local_ip]:[local_port]>
+      Max-Forwards: 70
+      Subject: normal call scenario by wangwei
+      user-agent: SIPp client
+      Content-type: application/dtmf-relay
+      Content-Length: [len]
+
+      Signal=1
+      Duration=160
+    ]]>
+  </send>
+
+    <recv response="200" />
+    
+	<pause  milliseconds="1000"/>     
+     
+<send>
+    <![CDATA[
+      INFO sip:[field1]@[local_ip]:[local_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: "[field0]" <sip:[field0]@[local_ip]>;tag=[call_number]zhg8
+      To: "[field1]"<sip:[field1]@[local_ip]>[peer_tag_param]
+      Call-ID: [call_id]
+      CSeq: 3 INFO
+      Contact: <sip:[field0]@[local_ip]:[local_port]>
+      Max-Forwards: 70
+      Subject: normal call scenario by wangwei
+      user-agent: SIPp client
+      Content-type: application/dtmf-relay
+      Content-Length: [len]
+
+      Signal=0
+      Duration=160
+    ]]>
+  </send>
+
+    <recv response="200" />    
+    
+	<pause  milliseconds="1000"/>     
+     
+<send>
+    <![CDATA[
+      INFO sip:[field1]@[local_ip]:[local_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: "[field0]" <sip:[field0]@[local_ip]>;tag=[call_number]zhg8
+      To: "[field1]"<sip:[field1]@[local_ip]>[peer_tag_param]
+      Call-ID: [call_id]
+      CSeq: 4 INFO
+      Contact: <sip:[field0]@[local_ip]:[local_port]>
+      Max-Forwards: 70
+      Subject: normal call scenario by wangwei
+      user-agent: SIPp client
+      Content-type: application/dtmf-relay
+      Content-Length: [len]
+
+      Signal=0
+      Duration=160
+    ]]>
+  </send>
+
+    <recv response="200" />  
+
+	<pause  milliseconds="2000"/>     
+     
+<send>
+    <![CDATA[
+      INFO sip:[field1]@[local_ip]:[local_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: "[field0]" <sip:[field0]@[local_ip]>;tag=[call_number]zhg8
+      To: "[field1]"<sip:[field1]@[local_ip]>[peer_tag_param]
+      Call-ID: [call_id]
+      CSeq: 5 INFO
+      Contact: <sip:[field0]@[local_ip]:[local_port]>
+      Max-Forwards: 70
+      Subject: normal call scenario by wangwei
+      user-agent: SIPp client
+      Content-type: application/dtmf-relay
+      Content-Length: [len]
+
+      Signal=2
+      Duration=160
+    ]]>
+  </send>
+
+    <recv response="200" />
+
+    <pause milliseconds="10000"/>
+           
+  <send start_rtd="bye">
+    <![CDATA[
+      BYE sip:[field1]@[local_ip]:[local_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: "[field0]" <sip:[field0]@[local_ip]>;tag=[call_number]zhg8
+      To: "[field1]"<sip:[field1]@[local_ip]>[peer_tag_param]
+      Call-ID: [call_id]
+      CSeq: 6 BYE
+      Max-Forwards: 70
+      Subject: normal call scenario by wangwei
+      Content-Length: 0
+    ]]>
+  </send>
+
+  <recv response="200" rtd="bye" next="END">
+  </recv>
+
+<!--Òì³£½áÊø-->
+  <label id="err_ack"/>
+
+  <send>
+    <![CDATA[
+      ACK sip:[field1]@[local_ip]:[local_port] SIP/2.0
+      [last_Via:]
+      From: "[field0]" <sip:[field0]@[local_ip]>;tag=[call_number]zhg8
+      To: "[field1]"<sip:[field1]@[local_ip]>[peer_tag_param]
+			[last_Call-ID:]
+			CSeq: 1 ACK
+      Max-Forwards: 70
+      Subject: normal call scenario by wangwei
+      user-agent: SIPp client mode version [sipp_version]
+      Content-Length: 0
+    ]]>
+  </send>  
+  
+<!--Õý³£½áÊø-->  	
+  <label id="END"/>
+    <nop hide="true">
+  </nop>
+
+<!--	<Reference variables="junk" />-->
+
+  <!-- definition of the response time repartition table (unit is ms)   -->
+  <ResponseTimeRepartition value="50, 200"/>
+
+  <!-- definition of the call length repartition table (unit is ms)     -->
+  <CallLengthRepartition value="500, 1000, 10000"/>
+
+</scenario>

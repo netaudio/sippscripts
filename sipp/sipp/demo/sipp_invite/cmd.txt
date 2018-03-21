@@ -1,0 +1,2 @@
+sipp -sf uac_invite_withoutrtp0615.xml 192.168.141.200:5060 -i 192.168.141.200 -p 5061 -inf uac_invite1002.csv -m 1 -t t1 -trace_msg
+sipp -sf uac_invite_withoutrtp.xml 192.168.141.200:5060 -i 192.168.141.200 -p 5062 -inf uac_invite1003.csv -t t1 -m 1 -trace_err

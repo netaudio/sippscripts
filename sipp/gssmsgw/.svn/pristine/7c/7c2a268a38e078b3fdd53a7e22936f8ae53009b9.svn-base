@@ -1,0 +1,842 @@
+#include "stdafx.h"
+#include <boost/lexical_cast.hpp>
+#include "cacti/util/StringUtil.h"
+#include "cacti/util/IniFile.h"
+
+#include "sgipprotocol.h"
+
+
+
+#include "SGIPCacheControl.h"
+
+#include "evtmsg.h"
+#include "tag.h"
+#include "reqmsg.h"
+#include "resmsg.h"
+
+#define new DEBUG_NEW
+
+
+
+BaseSGIPProtocol::BaseSGIPProtocol(const ServiceIdentifier& id,
+						   const string & configFile, 
+						   HandlerInterface * handler)
+:BaseProtocol(id, configFile, handler)
+,m_logger(Logger::getInstance("msggw"))
+,m_msgLogger(Logger::getInstance("sigp"))
+,m_cacheList(8192, 60)
+,m_cycleTimes(0)
+,m_longSms(0)
+,m_splitSize(140),m_tested(false),m_seqGen(1,999999)
+,m_maxSendWindowSize(100)
+{
+	setStatus(ST_NONE);
+}
+
+BaseSGIPProtocol::~BaseSGIPProtocol()
+{
+	
+}
+
+
+bool	BaseSGIPProtocol::open()
+{
+
+	return true;
+}
+
+
+bool	BaseSGIPProtocol::close()
+{
+	if(getStatus() == ST_READY)
+	{
+		sendExit();
+	}
+
+	setStatus(ST_ERROR);
+	return true;
+}
+
+bool	BaseSGIPProtocol::activeTest()
+{
+// 	static bool hastTest = false;
+#ifdef _TEST
+	test(2);
+#endif
+// 	hastTest = true;
+
+
+	switch(getStatus())
+	{
+	case ST_NONE:
+		return open();
+
+	case ST_INIT:
+		return true;
+
+	case ST_READY:
+		break;
+
+	case ST_BUSY:
+		break;
+
+	case ST_ERROR:
+		return open();
+
+	default:
+		break;
+	}
+
+
+	/*
+	if( (time(0) - m_lastRecvTime) > (m_cycleTimes * 60) )
+	{
+		if(m_cycleTimes >= m_checkTimes)
+		{
+			m_cycleTimes = 0;
+		}
+
+		m_logger.error("[%02d] error, recv nothing, %d seconds \n", m_myID.m_appref, m_cycleTimes * 60);
+		m_client->stop();
+		setStatus(ST_ERROR);
+		return true;
+	}
+	*/
+
+	m_logger.debug("[%02d] recv(%ld), send(%ld), recv error(%ld), send error(%ld)\n", 
+		m_myID.m_appref, m_statPackets.totalRecvPackets, m_statPackets.totalSendPackets,
+		m_statPackets.recvErrorPackets, m_statPackets.sendErrorPackets);
+
+	return sendActiveTest();
+}
+
+int	BaseSGIPProtocol::sendMessage(const ServiceIdentifier& source, UserTransferMessagePtr utm)
+{ 
+	switch(utm->getMessageId())
+	{
+	case _ReqSendSMS:
+	case _ReqDispatchSMS:
+		if(getStatus() != ST_READY)
+		{
+			respMessage(source, utm, -1);
+			return -1;
+		}
+
+		return sendSubmit(source, utm);
+
+	case _ReqQuerySendWindowSize:
+		return handleQuerySendWindowSize(source,utm);
+	case _ReqSMSSendBatch:
+		return handleSendSubmit(source, utm);
+	case _ReqGWService:
+		break;
+
+	default:
+		break;
+	}
+	return -1;
+}
+
+
+void	BaseSGIPProtocol::loadConfig()
+{
+	BaseProtocol::loadConfig();
+	cacti::IniFile iniFile;
+	if(!iniFile.open(m_configFile.c_str()))
+		return;
+
+	char key[256] = {0};
+
+	sprintf(key, "client.%d.version", m_myID.m_appref);
+	m_version	= (u8) iniFile.readInt("gateway", key, SGIP::Version_20);
+
+	sprintf(key, "client.%d.spID", m_myID.m_appref);
+	m_spId	= iniFile.readString("gateway",key,"118100");
+
+	m_longSms = iniFile.readInt("smgp", "longSms", 0);
+	m_splitSize = iniFile.readInt("smgp", "splitSize", 140);
+
+	m_maxSendWindowSize = iniFile.readInt("smgp", "maxSendWindowSize", 100);
+	int t_transferid ; 
+	t_transferid = iniFile.readInt("smgp", "smshttpgw",0);
+	if(t_transferid==0)
+	{
+		setStatus(ST_ERROR);
+		return;
+	}
+	m_smshttpgw.m_appid   = t_transferid;
+	m_smshttpgw.m_appport = AppPort::_apGateway;
+	m_smshttpgw.m_appref  = 0;
+
+	//m_cacheList.setLiveTime(m_recvTimeout);
+}
+
+void	BaseSGIPProtocol::handleClientEvt(const ServiceIdentifier& receiver, const UserTransferMessagePtr& utm)
+{
+	switch(utm->getMessageId())
+	{
+	case _EvtServerConnected:
+		{
+			m_logger.info("[%02d] client connected\n", m_myID.m_appref);
+			{
+				//setStatus(ST_READY);
+				sendLogin();
+			}
+		}
+		break;
+
+	case _EvtServerDisconnected:
+		{
+			m_logger.info("[%02d] client disconnected \n", m_myID.m_appref);
+			//disconnect();
+			//m_client->stop();  //此处执行此代码导致线程死锁
+		//	m_client->exit();
+			setStatus(ST_ERROR);
+		}
+		break;
+
+	default:
+		break;
+	}
+
+}
+
+void	BaseSGIPProtocol::handleClientMsg(cacti::Stream& content)
+{
+	SGIPHeader header(0);
+	content.reset();
+	if(false == header.fromStream(content))
+	{
+		m_statPackets.recvErrorPackets++;
+		return;
+	}
+
+	SGIPPacketPtr packet = SGIPPacketFactory::createPacket(header.command);
+	packet->setHeader(header);
+	if(false == packet->fromStream(content, true))
+	{
+		m_statPackets.recvErrorPackets++;
+		return;
+	}
+
+	m_statPackets.totalRecvPackets++;
+
+	switch(header.command)
+	{
+	case SGIP_Login:
+		{
+			string loginName;
+			string pwd;
+			SGIPLogin* pkg = static_cast<SGIPLogin*>(packet.get());
+			loginName.assign(pkg->loginName.begin(),pkg->loginName.end());
+			pwd.assign(pkg->password.begin(),pkg->password.end());
+			m_logger.info("[%02d] [%s] <- login loginName:%s,logtype:%d,pwd:%s\n", 
+				m_myID.m_appref, pkg->getPacketSequence(), loginName.c_str(),pkg->loginType,pwd.c_str());
+			sendLoginResp(pkg->getSouceCode(),pkg->getSendDate(),pkg->getSequence());
+		}
+		break;
+	case SGIP_Login_Resp:
+		{
+			SGIPLoginResp* pkg = static_cast<SGIPLoginResp*>(packet.get());
+			m_logger.info("[%02d] [%s] <- login resp %d\n", 
+				m_myID.m_appref,pkg->getPacketSequence(), pkg->status);
+
+			if(pkg->status == SGIP::Status_OK)
+			{
+				setStatus(ST_READY);
+#ifdef _TEST
+				if(!m_tested){
+				
+					//test(2);
+				}
+				
+#endif	
+			}
+			else
+				setStatus(ST_ERROR);
+		}
+		break;
+
+	case SGIP_Submit_Resp:
+		{
+			SGIPSubmitResp* pkg = static_cast<SGIPSubmitResp*>(packet.get());
+			handleSubmitResp(pkg);
+		}
+		break;
+
+	case SGIP_Deliver:
+		{
+			SGIPDeliver* pkg = static_cast<SGIPDeliver*>(packet.get());
+			handleDeliver(pkg);
+		}
+		break;
+	case SGIP_Report:
+		{
+			SGIPReport* pkg = static_cast<SGIPReport*>(packet.get());
+			handleReport(pkg);
+		}
+		break;
+
+	case SGIP_Active_Test:
+		{
+			sendActiveTestResp(packet->getSequence());
+		}
+		break;
+
+	case SGIP_Active_Test_Resp:
+		{
+			m_logger.debug("[%02d] [%s] <- activeTest resp\n", 
+				m_myID.m_appref,packet->getPacketSequence());
+		}
+		break;
+
+	case SGIP_Exit:
+		{
+			m_logger.info("[%02d] [%s] <- exit\n", 
+				m_myID.m_appref, packet->getPacketSequence());
+		}
+		break;
+
+	case SGIP_Exit_Resp:
+		{
+			m_logger.info("[%02d] [%s] <- recv exit resp\n", 
+				m_myID.m_appref, packet->getPacketSequence());
+		}
+		break;
+
+	default:
+		m_statPackets.recvErrorPackets++;
+
+		m_logger.info("[%02d] [%s] <- unknown cmd %d\n", 
+			m_myID.m_appref, packet->getPacketSequence(), header.command);
+		break;
+	}
+
+}
+
+bool BaseSGIPProtocol::sendPackage(SGIPPacket& pkg)
+{
+
+	return true;
+}
+bool BaseSGIPProtocol::sendPackage(SGIPPacketCachePtr pkg)
+{
+	
+	return true;
+}
+bool BaseSGIPProtocol::sendSubmitPackage(SGIPSubmit& pkg)
+{
+	return sendPackage(pkg);
+}
+
+bool	BaseSGIPProtocol::sendLogin()
+{
+	SGIPLogin packet;
+	packet.setSourceCode(getSourceId());
+	//packet.getHeader().sourceCode=1234;
+	//packet.getHeader().sendDate=GetTimeFormat(time(NULL),"%m%d%H%M%S");
+	packet.setSequence(m_seqGen.next());
+
+	packet.loginName.assign(m_userName.begin(), m_userName.end());
+	packet.password.assign(m_userPassword.begin(),m_userPassword.end());
+	
+	bool ret = sendPackage(packet);
+	m_logger.info("[%02d] [%s] -> login (%s, %s), spid(%s), status: %s\n", 
+		m_myID.m_appref, packet.getPacketSequence(), 
+		m_userName.c_str(), m_userPassword.c_str(),
+		m_spId.c_str(),
+		ret == true ? "ok" : "failed");
+
+	return ret;
+
+}
+
+bool	BaseSGIPProtocol::sendLoginResp(u32 sourceCode,u32 sendDate,u32 sequence)
+{
+	SGIPLoginResp packet;
+	packet.setSourceCode(getSourceId());
+	packet.getHeader().sourceCode=sourceCode;
+	packet.getHeader().sendDate=sendDate;
+	packet.setSequence(sequence);
+
+	packet.status=0;
+
+	bool ret = sendPackage(packet);
+	m_logger.info("[%02d] [%s] -> login_resp (%s, %s), spid(%s), status: %s\n", 
+		m_myID.m_appref, packet.getPacketSequence(), 
+		m_userName.c_str(), m_userPassword.c_str(),
+		m_spId.c_str(),
+		ret == true ? "ok" : "failed");
+
+	return ret;
+
+}
+
+bool	BaseSGIPProtocol::sendExit()
+{
+	SGIPExit packet;
+	packet.setSourceCode(getSourceId());
+	packet.setSequence(m_seqGen.next());
+
+	bool ret = sendPackage(packet);
+	m_logger.info("[%02d] [%s] -> exit, status: %s\n", 
+		m_myID.m_appref, packet.getPacketSequence(), ret == true ? "ok" : "failed");
+
+	return ret;	
+}
+
+bool	BaseSGIPProtocol::sendExitResp(u32 sourceCode,u32 sendDate,u32 sequence)
+{
+	SGIPExitResp packet;
+	packet.setSourceCode(getSourceId());
+	packet.setSequence(m_seqGen.next());
+
+	bool ret = sendPackage(packet);
+	m_logger.info("[%02d] [%s] -> exit, status: %s\n", 
+		m_myID.m_appref, packet.getPacketSequence(), ret == true ? "ok" : "failed");
+
+	return ret;	
+}
+
+bool	BaseSGIPProtocol::sendActiveTest()
+{
+	/*
+	SGIPActiveTest packet;
+	packet.setSequence(m_seqGen.next());
+
+	bool ret = sendPackage(packet);
+	m_logger.info("[%02d] [%08x] -> activeTest status: %s\n", 
+		m_myID.m_appref, packet.getSequence(), ret == true ? "ok" : "failed");
+	*/
+	return true;
+}
+
+bool	BaseSGIPProtocol::sendActiveTestResp(u32 seq)
+{
+	SGIPActiveTestResp packet;
+	packet.setSourceCode(getSourceId());
+	packet.setSequence(seq);
+	
+	bool ret = sendPackage(packet);
+	m_logger.info("[%02d] [%s] -> activeTestResp status: %s\n", 
+		m_myID.m_appref, packet.getPacketSequence(), ret == true ? "ok" : "failed");
+
+	return true;
+}
+
+int BaseSGIPProtocol::handleSendSubmit(const ServiceIdentifier& source, UserTransferMessagePtr utm)
+{
+	SGIPSubmit packet;
+
+	return   -1;
+}
+
+
+int	BaseSGIPProtocol::sendSubmit(const ServiceIdentifier& source, UserTransferMessagePtr utm)
+{	
+	SGIPSubmit packet;
+	packet.setSequence(m_seqGen.next());	
+	//packet.setSourceCode(m_myID.m_appref);	
+	packet.setSourceCode(getSourceId());
+	string flowSequence;
+	if(getParameter(flowSequence,"FlowSequence",*utm)){
+		string pkgSequence = packet.getPacketSequence();
+		addFlowSequence(pkgSequence,flowSequence);
+		m_logger.debug("[%02d] insert sequence(%s)---(%s)\n",
+			m_myID.m_appref,pkgSequence.c_str(),flowSequence.c_str());
+	}
+
+	string calling=(*utm)[_TagCalling];
+	string callee=(*utm)[_TagCallee];
+	packet.spNumber.assign(calling.begin(),calling.end());
+
+	string chargeNumber;
+	if(!getParameter(chargeNumber,"ChargeTermID",*utm)){
+		chargeNumber="000000000000000000000";
+	}
+	packet.chargeNumber.assign(chargeNumber.begin(),chargeNumber.end());	
+	packet.userNumber.assign(callee.begin(),callee.end());
+	packet.corpId.assign(m_spId.begin(),m_spId.end());
+	packet.serviceType.assign(m_serviceCode.begin(),m_serviceCode.end());
+
+	u8 freeType=2;
+	if(!getParameter(freeType,"FreeType",*utm)){
+		freeType=2;
+	}
+	packet.feeType=freeType;
+
+	string freeValue="0";
+	if(!getParameter(freeValue,"FreeCode",*utm)){
+		freeValue="0";
+	}
+	packet.feeValue.assign(freeValue.begin(),freeValue.end());
+
+	string givenValue="0";
+	if(!getParameter(givenValue,"GivenValue",*utm)){
+		givenValue="0";
+	}
+	packet.givenValue.assign(givenValue.begin(),givenValue.end());
+
+
+	u8 agentFlag=0;
+	if(getParameter(agentFlag,"AgentFlag",*utm)){
+		packet.agentFlag=agentFlag;
+	}
+
+	u8 mtFlag=MO_Order;
+	if(!getParameter(mtFlag,"SubmitMsgType",*utm)){
+		mtFlag=MO_Order;
+	}
+	packet.morelatetoMTFlag=mtFlag;
+
+
+	u8 priority=0;
+	if(!getParameter(priority,"Priorty",*utm)){
+		priority=0;
+	}
+	packet.priority=priority;
+
+	//string expireTime="1212210032032+";
+	//packet.expireTime.assign(expireTime.begin(),expireTime.end());
+
+	//string scheduleTime="1212210032032+";//(*utm)[_TagScheduleTime];
+	//packet.scheduleTime.assign(scheduleTime.begin(),scheduleTime.end());
+
+	u8 needReport=Report_Need;
+	if(!getParameter(needReport,"NeeReport",*utm)){
+		needReport=Report_Need;
+	}
+	packet.reportFlag=needReport;
+
+	u8 messageCoding=Format_Ascii;
+	if(!getParameter(messageCoding,"MsgFormat",*utm)){
+		messageCoding=Format_UCS2;
+	}
+
+
+	packet.messageCoding=messageCoding;
+
+	string message=(*utm)[_TagMessage];
+
+//	string newMessage;
+//	EncodeUcs2(message,newMessage);
+
+//	packet.messageContent.assign(newMessage.begin(),newMessage.end());
+//	packet.messageLength=(u32)packet.messageContent.size();
+
+	packet.messageContent.assign(message.begin(),message.end());
+	packet.messageLength=(u32)packet.messageContent.size();
+
+
+	string linkId="";
+	if(!getParameter(linkId,"LinkID",*utm)){
+		linkId="";
+	}
+
+	packet.reserve.assign(linkId.begin(),linkId.end());
+	bool ret=sendSubmitPackage(packet);
+
+	m_logger.debug("[%02d] [%s] sigp sendSubmit(%s) status:%d\n",m_myID.m_appref,
+	packet.getPacketSequence(),packet.toString("|"),ret);
+
+	return ret;
+}
+
+bool	BaseSGIPProtocol::handleSubmitResp(SGIPSubmitResp* pkg)
+{
+#pragma message("to do ...")
+	
+
+	
+	m_logger.debug("[%02d] [%s] <- sgip submit resp %d\n", 
+	m_myID.m_appref, pkg->getPacketSequence(), pkg->status);
+	
+	//CachedPacket* cachePkg = m_cacheList.getPacket(pkg->getSequence());
+	//if(cachePkg != NULL)
+	//{
+	//	m_cacheList.deletePacket(pkg->getSequence());
+	//}
+	//}
+
+
+	return true;
+}
+
+bool	BaseSGIPProtocol::sendDeliverResp(u32 souceCode,u32 sendDate,u32 seq, u32 status)
+{
+	SGIPDeliverResp pkg;
+	pkg.setSourceCode(souceCode);
+	pkg.setSendDate(sendDate);
+	pkg.setSequence(seq);
+	pkg.status = status;
+
+	return sendPackage(pkg);
+}
+
+bool	BaseSGIPProtocol::sendReportResp(u32 souceCode,u32 sendDate,u32 seq, u32 status)
+{
+	SGIPDeliverResp pkg;
+	pkg.setSourceCode(souceCode);
+	pkg.setSendDate(sendDate);
+	pkg.setSequence(seq);
+	pkg.status = status;
+
+	return sendPackage(pkg);
+}
+
+
+
+bool	BaseSGIPProtocol::handleDeliver(SGIPDeliver* pkg)
+{
+	//m_logger.debug(" handleDeliver   \n");
+	string userPhone;
+	string content;
+	string linkId;
+	string spNo;
+	spNo.assign(pkg->spNumber.begin(),pkg->spNumber.end());
+	linkId.assign(pkg->reserve.begin(),pkg->reserve.end());
+	userPhone.assign(pkg->userNumber.begin(),pkg->userNumber.end());
+	content.assign(pkg->messageContent.begin(),pkg->messageContent.end());
+
+	string newContent;
+	if(pkg->messageCoding==Format_UCS2 || pkg->messageCoding==Format_GB)
+	{
+		DecodeUcs2(content,newContent);
+	}
+	else if(pkg->messageCoding==Format_Ascii)
+	{
+		newContent=content;
+	}
+	string gwname=spNo.substr(0,8);
+	m_logger.debug("[%02d][%s] handleDeliver(%s-%s-%s-%s-%s) fromat %d\n",m_myID.m_appref,pkg->getPacketSequence(),userPhone.c_str(),newContent.c_str(),linkId.c_str(),spNo.c_str(),gwname.c_str(),pkg->messageCoding);
+	sendDeliverResp(pkg->getSouceCode(),pkg->getSendDate(),pkg->getSequence(),0);
+	
+	ServiceIdentifier res(0,0,0);
+	u8array cc;
+	pkg->toArray(cc);
+//	BYTE buf[2000];
+
+	//int len = MakeRecvSms(buf, 
+	//	m_myID.m_appref,
+	//	pkg->getPacketSequence(), 
+	//	userPhone.c_str(),
+	//	newContent.c_str(),
+	//	linkId.c_str(),
+	//	spNo.c_str(),
+	//	gwname.c_str(),
+	//	pkg->messageCoding);
+
+	//SendPacket((char *)buf,len);
+
+	//UserTransferMessagePtr utm = UTM::create(m_myID, res, _EvtReceiveMessage);	
+	//(*utm)[_TagGatewayName]=gwname.c_str();
+	//(*utm)[_TagCalling] =userPhone.c_str();
+	//(*utm)[_TagCallee]  =  spNo.c_str();
+	//(*utm)[_TagMessage] = newContent.c_str();
+	//(*utm)[_TagLinkId] = linkId;
+	//postMessage(m_myID, *utm);
+	//m_logger.debug("[%02d] handler deliver post to client %s\n",m_myID.m_appref,spNo.c_str());
+	return true;
+}
+
+
+
+bool	BaseSGIPProtocol::ylxhandleReport(SGIPReport* pkg)
+{
+	UserTransferMessagePtr utm = UTM::create(m_myID,m_myID, _ReqDispatchSMSReport);
+	(*utm)[_TagGatewayName]=m_exName;			
+	(*utm)[_TagServiceId] = m_serviceName;
+
+	string flowSequence = getFlowSequence(pkg->getSubmitSequenceNumber());
+
+	(*utm)[_TagSequenceNumber] = flowSequence;
+
+	char ss[100];
+	sprintf(ss,"%d",pkg->state);
+	(*utm)[_TagResult] = ss;
+	
+	postMessage(m_myID,*utm);
+
+	return true;
+}
+
+bool	BaseSGIPProtocol::handleReport(SGIPReport* pkg)
+{
+	
+	string userPhone;
+	
+	userPhone.assign(pkg->userNumber.begin(),pkg->userNumber.end());
+
+	m_logger.debug("[%02d][%s][%s] handleReport (%s-%d-%d)\n",
+		m_myID.m_appref,
+		pkg->getPacketSequence(),pkg->getSubmitSequenceNumber(),userPhone.c_str(),pkg->state,
+		pkg->errorCode);
+	sendReportResp(pkg->getSouceCode(),pkg->getSendDate(),pkg->getSequence(),0);
+
+	//if (strcmp(userPhone.c_str(),"8600000000000") == 0 && pkg->errorCode == 23)
+	//if(getTestNum() == userPhone)
+	//if (strcmp(userPhone.c_str(),getTestNum().c_str()) == 0 )
+	if (strcmp(userPhone.c_str(),"8600000000000") == 0)
+	{
+		return true;
+	}
+
+
+	UserTransferMessage utm(m_myID,NullSid,_EvtReceiveMessage,pkg->errorCode);
+	utm[_TagServiceId] = m_serviceName;
+	utm[_TagCallee] = userPhone.c_str();
+	utm[_TagGatewayName] = m_serviceName;
+
+	string flowSequence = getFlowSequence(pkg->getSubmitSequenceNumber());
+	utm[_TagSequenceNumber] = flowSequence;
+	
+	//YLX_Report
+
+	postMessage(m_myID,utm);	
+	ylxhandleReport(pkg);
+	m_logger.debug("[%02d] handler report(%s)----(%s)\n",m_myID.m_appref,pkg->getSubmitSequenceNumber(),flowSequence.c_str());
+
+
+	return true;
+}
+
+
+int BaseSGIPProtocol::respSubmitMessage(const ServiceIdentifier& source, UserTransferMessagePtr utm, u32 ret,SGIPSubmitResp& pkg)
+{
+	utm->setMessageId(_ResSMSSendBatch);
+	utm->setRes(utm->getReq());
+	utm->setReq(m_myID);
+
+	utm->setReturn(ret);
+
+
+
+	(*utm)[_TagStatus] = pkg.status;
+
+
+	postMessage(source, *utm);
+
+	m_logger.debug("[%02d] respSubmit  _ResSMSSendBatch to (%s), ret(%d),msgstatus(%d)\n",
+		m_myID.m_appref, source.toString().c_str() ,ret,pkg.status);
+
+	return SGIP::Status_OK;
+}
+
+
+int	BaseSGIPProtocol::respMessage(const ServiceIdentifier& source, UserTransferMessagePtr utm, u32 ret)
+{
+
+		utm->setMessageId(_ResSendSMS);
+		utm->setRes(utm->getReq());
+		utm->setReq(m_myID);
+
+		utm->setReturn(ret);
+
+		std::string message = "";
+		char buf[20] = {0};
+
+		sprintf(buf, "%d", ret);
+		message = buf;
+		(*utm)[_TagMessage] = message;
+
+		//transfer message need return
+		(*utm)[_TagGatewayName] = (*utm)[_TagController];
+
+
+		string srcTermID = (*utm)[_TagCalling];//"118100";
+		string destTermID = (*utm)[_TagCallee];//"059522327651";
+		postMessage(source, *utm);
+
+		m_logger.debug("[%02d] resp to (%s), status(%d), srcTermID(%s), dstTermID(%s)\n",
+			m_myID.m_appref, source.toString().c_str() ,ret,
+			srcTermID.c_str(), destTermID.c_str());
+
+	return SGIP::Status_OK;
+}
+
+void BaseSGIPProtocol::snapshot()
+{
+	m_logger.info("[%02d] snapshot: start(%s),status(%d),send(%d),recv(%d),lost(%d)\n",
+		m_myID.m_appref, getStrTime(m_startTime, "%Y-%m-%d %H:%M:%S").c_str(), getStatus(),
+		m_statPackets.totalSendPackets, m_statPackets.totalRecvPackets, m_statPackets.lostPackets);
+
+	Service::printConsole("[%02d] snapshot: start(%s),status(%d),send(%d),recv(%d),lost(%d)\n",
+		m_myID.m_appref, getStrTime(m_startTime, "%Y-%m-%d %H:%M:%S").c_str(), getStatus(),
+		m_statPackets.totalSendPackets, m_statPackets.totalRecvPackets, m_statPackets.lostPackets);
+}
+
+void BaseSGIPProtocol::handleCommand(const ServiceIdentifier& sender, UserTransferMessagePtr utm)
+{
+	strarray  vec = (*utm)[_TagCommand];
+	AlarmSender* alarm = AlarmSender::getInstance();
+	strarray ret;
+
+#ifdef _DEBUG
+	alarm->send(ServiceIdentifier(), "recv cmd", 0, vec);
+	m_logger.debug("[%02d] recv cmd: (%s)\n", m_myID.m_appref, vec[0].c_str());
+#endif
+
+	if(vec.size() <= 0)
+	{
+		return;
+	}
+
+	if(vec[0] == "req")
+	{
+		//res module 
+		//index,modulename,type,status,time,version,send,recv,lost
+		ret.push_back(StringUtil::format("%d", m_myID.m_appref));
+		ret.push_back(getServiceName());
+		ret.push_back("smsgateway");
+		ret.push_back(StringUtil::format("%d", getStatus()));
+		ret.push_back(getStrTime(m_startTime, "%Y-%m-%d %H:%M:%S"));
+		ret.push_back("SGIP1.3");
+		ret.push_back(StringUtil::format("%u", m_statPackets.totalSendPackets));
+		ret.push_back(StringUtil::format("%u", m_statPackets.totalRecvPackets));
+		ret.push_back(StringUtil::format("%u", m_statPackets.lostPackets));
+
+		alarm->send(ServiceIdentifier(), "res module", 0xFF, ret);
+	}	
+}
+bool BaseSGIPProtocol::handleQuerySendWindowSize(const ServiceIdentifier& source, UserTransferMessagePtr utm)
+{
+	
+	
+	return true;
+	
+}
+bool BaseSGIPProtocol::transferReport(string caller,string called,string reportcontent)
+{
+	UserTransferMessagePtr utm = UTM::create(m_myID,m_smshttpgw,_ReqSMSReport);
+	(*utm)[_TagCallee] = string(caller.c_str());
+	(*utm)[_TagCalling] =  string(called.c_str());
+	(*utm)[_TagUserData] = reportcontent;
+	 postMessage(m_smshttpgw,*utm);
+	 return true;
+}
+bool BaseSGIPProtocol::transferDeliver(string caller,string called,string msgcontent)
+{
+	UserTransferMessagePtr utm = UTM::create(m_myID,m_smshttpgw,_ReqSMSDeliver);
+	(*utm)[_TagCallee] = string(called.c_str());
+	(*utm)[_TagCalling] = string(caller.c_str());
+	(*utm)[_TagUserData] = msgcontent;
+	postMessage(m_smshttpgw,*utm);
+	return true;
+}
+void BaseSGIPProtocol::parseReportMsgContent(const u8array& msgContent,int msglength, std::string& newMsgConent)
+{
+
+	string contmsgid = StringUtil::BCD2ASC((const unsigned char*)(&msgContent[3]),20);
+	string contentother = string((const char*)(&msgContent[13]),msglength-13-17);
+//	string contextlen= string((const char*)(&msgContent[msglength-20]),3);//20  is  textlength   5 is "Text:"
+	//TODO：应判断最后一个字符是否为中文，如果是的话则取16位，如果不是则取17位
+	//懒下，不处理了
+	//string context= string((const char*)(&msgContent[msglength-17]),16);
+//	string conttext=   StringUtil::BCD2ASC((const unsigned char*)(&msgContent[textpos]),34);
+
+	newMsgConent.append("Id:");
+	newMsgConent.append(contmsgid);
+	newMsgConent.append(contentother);
+	//newMsgConent.append(context);
+	
+}

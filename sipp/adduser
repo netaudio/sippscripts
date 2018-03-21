@@ -1,0 +1,10 @@
+
+#!/bin/sh
+i=100000
+while [ $i -le 300000 ]
+do
+opensipsctl add  ${i}  1234
+i=$(($i+1 ))
+done
+
+

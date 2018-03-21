@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "smsgw", "msggw.vcproj", "{A7141E2B-E11B-4A07-A809-A6F86198FFD5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		debug_mgp12|Win32 = debug_mgp12|Win32
+		debug_mgp13|Win32 = debug_mgp13|Win32
+		debug_mgpplus|Win32 = debug_mgpplus|Win32
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+		release1.3|Win32 = release1.3|Win32
+		test_mgp13|Win32 = test_mgp13|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.debug_mgp12|Win32.ActiveCfg = debug_mgp12|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.debug_mgp12|Win32.Build.0 = debug_mgp12|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.debug_mgp13|Win32.ActiveCfg = debug_mgp13|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.debug_mgp13|Win32.Build.0 = debug_mgp13|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.debug_mgpplus|Win32.ActiveCfg = debug_mgpplus|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.debug_mgpplus|Win32.Build.0 = debug_mgpplus|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.Debug|Win32.Build.0 = Debug|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.Release|Win32.ActiveCfg = Release|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.Release|Win32.Build.0 = Release|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.release1.3|Win32.ActiveCfg = release1.3|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.release1.3|Win32.Build.0 = release1.3|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.test_mgp13|Win32.ActiveCfg = test_mgp13|Win32
+		{A7141E2B-E11B-4A07-A809-A6F86198FFD5}.test_mgp13|Win32.Build.0 = test_mgp13|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

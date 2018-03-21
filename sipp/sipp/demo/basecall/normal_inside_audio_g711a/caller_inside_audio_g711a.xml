@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE scenario SYSTEM "sipp.dtd">
+
+<!--Ä£Äâ¾ÖÄÚÖ÷½ÐÓÃ»§Á÷³Ì-->
+<!--Ã½ÌåÀàÐÍ£ºPCMU-->
+<!--±àÐ´Ê±¼ä£º2015-11-11 11:33 ±àÐ´ÈË£ºÍõÎ°-->
+<!--±à¼­È·ÈÏÊ±¼ä£º2016-01-04 17:10 by£ºÍõÎ°
+		±à¼­ÄÚÈÝ£º1.¹æ·¶¸ñÊ½£¬Ôö¼Ó×¢ÊÍÄÚÈÝ£¬ÐÞ¸ÄÖØ´«¶¨Ê±Æ÷Ê±³¤
+							2.µ÷ÕûÍ³¼Æresponse¶¨Ê±Æ÷¼ä¸ô
+							3.¼õÉÙINVITEÏûÏ¢µÄÈßÓàSDPÄÚÈÝ-->
+<scenario name="caller_inner_normal_noprint">
+
+<!--·¢ËÍINVITEÏûÏ¢£¬Éè¶¨ÖØ´«¶¨Ê±Æ÷Îª1000ms£¬Í¬Ê±Æô¶¯¶¨Ê±Æ÷invite-->
+	<send retrans="1000" start_rtd="invite">
+    <![CDATA[
+        INVITE sip:[field1]@[remote_ip] SIP/2.0
+        Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+        From: "[field0]" <sip:[field0]@[remote_ip]>;tag=[call_number]zhg8
+        To: "[field1]"<sip:[field1]@[remote_ip]>
+        Call-ID: [call_id]
+        CSeq: 1 INVITE
+        Contact: <sip:[field0]@[local_ip]:[local_port]>
+        User-Agent: SIPp client mode version [sipp_version]
+        Allow: INVITE,PRACK,ACK,UPDATE,CANCEL,BYE,OPTIONS,INFO,SUBSCRIBE,REFER,NOTIFY
+        Max-Forwards: 70
+        Content-Type: application/sdp
+        Content-Length: [len]
+
+        v=0
+        o=SIPp [pid][call_number] 8[pid][call_number]8 IN IP[local_ip_type] [local_ip]
+        s=SIPp Normal Call Test
+        t=0 0
+        m=audio [auto_media_port] RTP/AVP 8 101
+        c=IN IP[media_ip_type] [media_ip]
+        a=rtpmap:8 PCMA/8000
+        a=rtpmap:101 telephone-event/8000
+        a=fmtp:101 0-15
+        a=sendrecv
+    ]]>
+ 	</send>
+
+<!--1xxÏìÓ¦¾ùÎª¿ÉÑ¡½ÓÊÕÏûÏ¢£¬ÇÒ½ÓÊÕµ½ÁÙÊ±ÏìÓ¦ºó£¬¼´¿ÉÍ£Ö¹invite¶¨Ê±Æ÷µÄ¼ÆÊ±-->
+<!--ÊÕµ½4xx/5xx´íÎóÏìÓ¦ºó£¬Ö±½Ó½øÈëºô½ÐÊ§°Ü-->
+  <recv response="100" optional="true" rtd="invite">
+  </recv>
+
+  <recv response="183" optional="true" rtd="invite" timeout="10000">
+  </recv>
+
+<recv response="180"  optional="true" rtd="invite" timeout="10000">
+  </recv>
+
+  <recv response="200" rtd="invite" timeout="10000" >
+  </recv>
+
+  <send>
+    <![CDATA[
+      ACK sip:[field1]@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: "[field0]" <sip:[field0]@[remote_ip]>;tag=[call_number]zhg8
+      To: "[field1]"<sip:[field1]@[remote_ip]>[peer_tag_param]
+      Call-ID: [call_id]
+      CSeq: 1 ACK
+      Contact: <sip:[field0]@[local_ip]:[local_port]>
+      Max-Forwards: 70
+      Subject: normal call scenario by wangwei
+      user-agent: SIPp client mode version [sipp_version]
+      Content-Length: 0
+    ]]>
+  </send>
+
+	<!--ÔÚ·¢ËÍACKºó£¬¼´¿ªÊ¼´«ÊäRTPÃ½ÌåÁ÷-->
+	<nop hide="true">
+    <action>
+      <exec play_pcap_audio="pcap/g711a.pcap"/>
+    </action>
+	</nop>
+
+	<!--Ã½ÌåÁ÷´«ÊäÓï¾äÓëÐÅÁîÁ÷³Ì²¢·¢£¬Òò´ËÐèÔÚ´Ë´¦ÔÝÍ£2ÃëÖÓ£¬Ä£Äâºô½Ð³ÖÐøÊ±³¤-dÃë£¬Ëæºó·¢ËÍBYE½áÊøºô½Ð-->
+  <pause />
+
+  <send retrans="1000" start_rtd="bye">
+    <![CDATA[
+      BYE sip:[field1]@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: "[field0]" <sip:[field0]@[remote_ip]>;tag=[call_number]zhg8
+      To: "[field1]"<sip:[field1]@[remote_ip]>[peer_tag_param]
+      Call-ID: [call_id]
+      CSeq: 2 BYE
+      Contact: sip:sipp@[local_ip]:[local_port]
+      Max-Forwards: 70
+      Subject: normal call scenario by wangwei
+      Content-Length: 0
+    ]]>
+  </send>
+
+  <recv response="200" rtd="bye" next="END" timeout="5000">
+  </recv>
+
+	<!--Õý³£½áÊø-->
+  <label id="END"/>
+  <nop hide="true">
+  </nop>
+
+	<!-- Èç¹û´æÔÚ¶¨ÒåÁËµ«Î´±»Ê¹ÓÃµÄ±äÁ¿£¬¿ÉÒÔÔÚÏÂÃæÓï¾äµÄË«ÒýºÅÖÐÔö¼Ó£¬±ÜÃâÔËÐÐÊ±±¨´í-->
+<!--	<Reference variables="junk" />-->
+
+  <!-- definition of the response time repartition table (unit is ms)   -->
+  <ResponseTimeRepartition value="50, 200"/>
+
+  <!-- definition of the call length repartition table (unit is ms)     -->
+  <CallLengthRepartition value="500, 1000, 10000"/>
+
+</scenario>

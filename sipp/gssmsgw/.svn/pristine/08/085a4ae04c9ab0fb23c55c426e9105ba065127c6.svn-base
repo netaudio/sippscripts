@@ -1,0 +1,11 @@
+; srvsock.def : Declares the module parameters.
+
+LIBRARY      "srvsock.DLL"
+
+EXPORTS
+    SendPacket
+	StartSrv
+	MakeReportPacket
+	MakeSubmitRespPacket
+	CloseAll
+	MakeRecvSms

@@ -1,0 +1,48 @@
+UAC
+UAC 端：uac.sh, uac.xml, uac.csv
+
+./sipp -i 192.168.146.17 -sf uac.xml -inf uac.csv 192.168.146.11:5060 -l 1 -trace_msg -trace_screen -trace_err -p 12345 -m 1 -aa
+
+uac.sh
+
+    #m变量使用命令行传递的第一个位置参数
+    m=$1
+     
+    ./sipp -i 192.168.146.17 -sf uac.xml -inf uac.csv 192.168.146.11:5060 -l $m -trace_screen -trace_err -p 12345 -m $m -aa
+
+
+    
+UAS端：reg.sh,   reg.xml,   uas_noreg.sh,   uas_noreg.xml,  uas.csv
+
+REG
+
+./sipp -i 192.168.146.101 -sf reg.xml -inf uas.csv 192.168.148.43:5060 -l 1 -trace_msg -trace_screen -trace_err -p 12346 -m 1 -aa
+
+
+reg.sh
+    # m变量使用命令行传递的第一个位置参数
+    m=$1
+    ./sipp -i 192.168.146.101 -sf reg.xml -inf uas.csv 192.168.148.43:5060 -l 1 -trace_screen -trace_err -p 12346 -m 1 -aa
+
+UAS
+
+./sipp -i 192.168.146.101 -sf uas_noreg.xml -inf uas.csv 192.168.148.43:5060 -l 1 -trace_msg -trace_screen -trace_err -p 12346 -m 1 -aa
+
+uas.sh
+
+    # m变量使用命令行传递的第一个位置参数
+    m=$1
+     
+    ./sipp -i 192.168.146.101 -sf uas_noreg.xml -inf uas.csv 192.168.148.43:5060 -l $m -trace_screen -trace_err -p 12346 -m $m -aa
+
+
+
+进行性能测试时，要使用UAC+UAS流程；建议使用两台sipp客户端，一台担任UAC，一台担任UAS。
+
+操作步骤：
+1）被叫方：进行被叫号码注册操作./reg.sh 100
+2）被叫方：启动被叫uas流程./uas_noreg.sh 100
+3）主叫方：启动主叫uac流程./uac.sh 100
+注：100为用户数
+
+

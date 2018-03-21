@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sipp -sf uas.xml -s 7000 -p 6169 -i 192.168.101.89 -m 5000 192.168.101.168:5060
+sipp -sf uas.xml -inf reg_uas.csv -s 7000 -deadcall_wait 0 -p 6080 -i 192.168.101.89 -m 1 192.168.101.168:5060

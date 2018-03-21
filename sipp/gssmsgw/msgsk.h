@@ -1,0 +1,64 @@
+#ifndef _MSG_SK_H_
+#define _MSG_SK_H_
+#pragma once
+
+#include "cacti/logging/LogManager.h"
+#include "cacti/mtl/ServiceSkeleton.h"
+
+#include "base/MsgProcess.h"
+
+#define FlowSeqRemoveTime 48
+#define FlowSeqCheckTime 3600
+using namespace cacti;
+struct FlowSequence
+{
+	u32 m_state;
+	string m_seq;
+	FlowSequence( string seq,u32 state):m_seq(seq),m_state(state){}
+};
+
+
+class MsgServiceSK : public ServiceSkeleton
+{
+public:
+	MsgServiceSK(MessageDispatcher* dispatcher);
+	~MsgServiceSK();
+
+public:
+	virtual void onMessage (const ServiceIdentifier& sender, UserTransferMessage& utm);
+	virtual bool init();
+	virtual void uninit();
+
+	string getFlowSequence(string sequence);
+	void addFlowSequence(string sequence,string flowSequence);
+	bool dispatchMessage(const ServiceIdentifier& receiver, UserTransferMessagePtr utm);
+
+private:
+	void onModuleActive(const ServiceIdentifier& sender, UserTransferMessage& utm);
+	void onModuleDeactive(const ServiceIdentifier& sender, UserTransferMessage& utm);
+	void onRegisterServiceResponse(const ServiceIdentifier& sender, UserTransferMessage& utm);
+
+	MsgProcess* findProcess(const string  serviceName);
+	void onDistributeRequest(const ServiceIdentifier& sender, UserTransferMessage& utm);
+	void onDispatchSMS(const ServiceIdentifier& sender, UserTransferMessage& utm);
+	void onDispatchSMSReport(const ServiceIdentifier& sender, UserTransferMessage& utm);
+	void onActiveTest(const ServiceIdentifier& sender, UserTransferMessage& utm);
+	void onMyTest(const ServiceIdentifier& sender, UserTransferMessage& utm);
+	void onSnapshot(const ServiceIdentifier& sender, UserTransferMessage& utm);
+	void onDistributeAll(const ServiceIdentifier& sender, UserTransferMessage& utm);
+	void onEvtTimeOutException(const ServiceIdentifier& sender, UserTransferMessage& utm);
+
+//	bool dispatchMessage(const ServiceIdentifier& receiver, UserTransferMessagePtr utm);
+
+private:
+	Logger& m_logger;
+	u32 m_processNum;
+	u32 m_currIndex;
+	bool hasProxy;
+	std::map<string,MsgProcess*> m_gwlist;
+
+	RecursiveMutex       m_lock;
+	std::map<string,FlowSequence> m_flowSequenceMap;//<联通seq，流程seq>
+};
+
+#endif

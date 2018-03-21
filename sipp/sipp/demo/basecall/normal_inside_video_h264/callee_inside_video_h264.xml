@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE scenario SYSTEM "sipp.dtd">
+<!--½Å±¾±àÐ´Ê±¼ä£º2016.3.27 by Ö£Î÷±ò-->
+<!--ÓÃÓÚÄ£Äâ¾ÖÄÚÊÓÆµÍ¨»°±»½Ð²àÓÃ»§µÄÕý³£ÒµÎñÁ÷³Ì
+		Ã½ÌåÀàÐÍ£ºPCMU,h264-->
+
+<!--½Å±¾¹éÕûÊ±¼ä£º2016.5.16 ¶ÎÑÇ¶«-->
+<!--½Å±¾¹éÕûÄÚÈÝ£º1.½Å±¾¸ñÊ½¹æ·¶»¯£»
+				  2.Ôö¼Ó½Å±¾Í·×¢ÊÍºÍ²¿·ÖÄ£¿é×¢ÊÍ
+				  3.ÏìÓ¦100ºÍ180µÄÊ±¼ä¼ä¸ôÐÞ¸ÄÎª20ms
+				  4.Ôö¼Ó±»½ÐbyeµÄ³¬Ê±ÇëÇó-->
+<scenario name="callee_inner_h264">
+
+<!--²ÎÊýcaller_num¡¢callee_numºÍcaller_tagÓÃÓÚÖ÷½ÐÎ´¹Ò»ú£¬BYE½ÓÊÕ³¬Ê±Ö÷¶¯·¢BYEµÄÁ÷³Ì-->
+<!--²ÎÊýcaller_num¡¢callee_numºÍcaller_media_portÓÃÓÚ´òÓ¡Êä³ö-->
+<recv request="INVITE">
+	<action>
+		<ereg regexp="<sip:(.*)@.*>;tag=(.*)"
+			search_in="hdr"
+			header="From: "
+			check_it="true"
+			assign_to="junk,caller_num,caller_tag" />
+		<ereg regexp="<sip:(.*)@(.*)>"
+			search_in="hdr"
+			header="To: "
+			check_it="true"
+			assign_to="junk,callee_num" />
+	</action>
+</recv>
+
+<!--Ôö¼Ó¼ä¸ô100ms£¬±ÜÃâÅ¼ÏÖÏµÍ³²»·¢ËÍ100ÏìÓ¦µÄÎÊÌâ-->
+<pause hide="true" milliseconds="20"/>
+
+<send>
+	<![CDATA[
+		SIP/2.0 100 Trying
+		[last_Via:]
+		[last_From:]
+		[last_To:]
+		[last_Call-ID:]
+		[last_CSeq:]
+		Contact: <sip:[local_ip]:[local_port];transport=[transport]>
+		Content-Length: 0
+	]]>
+</send>
+
+<!--Ôö¼Ó¼ä¸ô20ms£¬±ÜÃâÅ¼ÏÖÏµÍ³²»·¢ËÍ180ÏìÓ¦µÄÎÊÌâ-->
+<pause hide="true" milliseconds="20"/>
+
+<send>
+	<![CDATA[
+		SIP/2.0 180 Ringing
+		[last_Via:]
+		[last_From:]
+		[last_To:];tag=[call_number]
+		[last_Call-ID:]
+		[last_CSeq:]
+		Contact: <sip:[local_ip]:[local_port];transport=[transport]>
+		Content-Length: 0
+	]]>
+</send>
+
+<!--ÉèÖÃ·¢ËÍ200ºóµÈ´ýACKµÄÖØ´«ÖÜÆÚÎª1Ãë£¬Èç¹û1ÃëÄÚÊÕ²»µ½ACKÔò½øÐÐ200µÄÖØ´«-->
+<send retrans="1000" start_rtd="ack">
+	<![CDATA[
+		SIP/2.0 200 OK
+		[last_Via:]
+		[last_From:]
+		[last_To:];tag=[call_number]
+		[last_Call-ID:]
+		[last_CSeq:]
+		Contact:<sip:[local_ip]:[local_port];transport=[transport]>
+		Content-Type: application/sdp
+		Content-Length: [len]
+
+		v=0
+		o=user1 53655765 2353687637 IN IP[local_ip_type] [local_ip]
+		s=-
+		c=IN IP[media_ip_type] [media_ip]
+		t=0 0
+		m=audio [media_port] RTP/AVP 0
+		a=rtpmap:0 PCMU/8000
+		m=video [media_port+2] RTP/AVP 102
+		b=AS:2000
+		a=rtpmap:102 H264/90000
+		a=fmtp:102
+		a=ptime: 20
+	]]>
+</send>
+
+<!--ÉèÖÃµÈ´ýACKµÄ³¬Ê±¶¨Ê±Æ÷Îª5Ãë£¬Èç¹û30ÃëÄÚÊÕ²»µ½ACKÔòºô½Ð³¬Ê±Ê§°Ü¶ø½áÊø-->
+<recv request="ACK" rtd="ack" timeout="30000" />
+
+<nop hide="true">
+	<action>
+		<exec rtp_stream="pcap/g711u.pcap,300,0" />
+        <exec play_pcap_video="pcap/h264.pcap"/>
+	</action>
+</nop>
+
+<recv request="BYE" timeout="60000" ontimeout="send_bye">
+</recv>
+
+<send next="END">
+	<![CDATA[
+		SIP/2.0 200 OK
+		[last_Via:]
+		[last_From:]
+		[last_To:]
+		[last_Call-ID:]
+		[last_CSeq:]
+		Contact: <sip:[local_ip]:[local_port];transport=[transport]>
+		Content-Length: 0
+	]]>
+</send>
+
+<!--Ö÷½ÐÎ´¹Ò»ú£¬BYE½ÓÊÕ³¬Ê±,±»½ÐÖ÷¶¯·¢BYE-->
+<label id="send_bye"/>
+<send start_rtd="bye">
+	<![CDATA[
+		BYE sip:[$caller_num]@[local_ip]:[local_port] SIP/2.0
+		Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+		From: "[$caller_num]" <sip:[$caller_num]@[local_ip]>;tag=[call_number]
+		To: "[$callee_num]"<sip:[$callee_num]@[local_ip]>;tag=[$caller_tag]
+		Call-ID: [call_id]
+		CSeq: 2 BYE
+		Max-Forwards: 70
+		Subject: normal call scenario by wangwei
+		Content-Length: 0
+	]]>
+</send>
+
+<recv response="200" rtd="bye">
+</recv>
+
+<label id="END"/>
+<nop hide="true">
+</nop>
+
+
+
+
+<Reference variables="junk" />
+
+<!-- definition of the response time repartition table (unit is ms)   -->
+<ResponseTimeRepartition value="50, 200"/>
+
+<!-- definition of the call length repartition table (unit is ms)     -->
+<CallLengthRepartition value="500, 1000, 10000"/>
+
+</scenario>

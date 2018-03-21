@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>  
+<!DOCTYPE scenario SYSTEM "sipp.dtd">  
+  
+<scenario name="branch_client">
+  
+<!--   
+  <send retrans="500">
+    <![CDATA[
+      REGISTER sip:[field0]@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port]
+      From: [field0] <sip:[field0]@[local_ip]:[local_port]>;tag=[call_number];rport
+      To: [field0] <sip:[field0]@[remote_ip]:[remote_port]>
+      Call-ID: [call_id]
+      CSeq: 2 REGISTER
+      Contact: sip:[field0]@[local_ip]:[local_port]
+      [field2]
+      Content-Length: [len]
+      Expires: 3600
+    ]]>
+  </send>
+
+ -->  
+  
+  <send retrans="500">
+    <![CDATA[
+      REGISTER sip:[remote_ip] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: [field0] <sip:[field0]@[local_ip]:[local_port]>;tag=[call_number];rport
+      To: [field0] <sip:[field0]@[remote_ip]:[remote_port]> 
+      Call-ID: [call_id]
+      CSeq: 1 REGISTER
+      Contact: sip:[field0]@[local_ip]:[local_port]
+      Content-Length: 0
+      Expires: 300
+    ]]>
+  </send>
+  
+  
+  <recv response="200" rtd="true" next="1"></recv>
+
+  <label id="1"/>
+
+
+<!--   <send retrans="500">
+    <![CDATA[
+      REGISTER sip:[remote_ip] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: [field0] <sip:[field0]@[local_ip]:[local_port]>;tag=[call_number];rport
+      To: [field0] <sip:[field0]@[remote_ip]:[remote_port]>
+      Call-ID: [call_id]
+      CSeq: 2 REGISTER
+      Contact: sip:[field0]@[local_ip]:[local_port]
+      [field2]
+      Content-Length:0
+      Expires: 300
+    ]]>
+  </send> -->
+  
+<send retrans="500">
+       <![CDATA[
+       SUBSCRIBE sip:[remote_ip] SIP/2.0
+       Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+       From: [field0] <sip:[field0]@[remote_ip]:[remote_port]>;tag=[call_number]
+       To: [field0] <sip:[field0]@[remote_ip]:[remote_port]>
+       Call-ID: [call_id]
+       CSeq: 1 SUBSCRIBE
+       Contact: sip:[field0]@[local_ip]:[local_port]
+       Content-Length: 0
+       Expires: 3600
+     ]]>
+  </send>
+  
+   
+<!--    
+  <send retrans="500">
+    <![CDATA[
+      REGISTER sip:[field0]@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port]
+      From: [field0] <sip:[field0]@[local_ip]:[local_port]>;tag=[call_number];rport
+      To: [field0] <sip:[field0]@[remote_ip]:[remote_port]>
+      Call-ID: [call_id]
+      CSeq: 2 REGISTER
+      Contact: sip:[field0]@[local_ip]:[local_port]
+      [field2]
+      Content-Length: [len]
+      Expires: 3600
+    ]]>
+  </send>
+ -->
+  
+  
+  <recv response="404" auth="true" next="2"></recv>
+  
+  <label id="2"/>
+
+  <ResponseTimeRepartition value="10, 20, 30, 40, 50, 100, 150, 200"/>
+
+  <!-- definition of the call length repartition table (unit is ms)     -->
+  <CallLengthRepartition value="10, 50, 100, 500, 1000, 5000, 10000"/>
+ 
+</scenario>

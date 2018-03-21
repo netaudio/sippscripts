@@ -1,0 +1,79 @@
+[Service]                               
+url = smsgw/2@127.0.0.1:9002
+                                        
+[peers]
+peer1 =applogic/1@127.0.0.1:9003
+
+[gateway]
+#type 0: Nothing 1:SMGP 2:CNGP 3:CMPP 4:SGIP_CLIENT 5:SGIP_SERVER 6:SMGP_SC 7:CMPP_SERVER 11: ylxserver 12: ysmsserver
+#type:11 云联讯短信网关
+#type:12 云联讯短信服务模式
+
+
+client.1.name           = 10658605
+client.1.type           = 4
+client.1.serverIP      	= 127.0.0.1
+client.1.serverPort     = 7895
+client.1.userName       = 901214
+client.1.userPassword   = ICP
+client.1.connection     = 1
+client.1.activeTestTime = 4000
+client.1.spID		    = 901214
+client.1.sourceID	    = 3000091333
+client.1.version	    = 48
+client.1.flag		    = 2
+client.1.isrID		    = 2
+#如果sieID和flowID配置为0的话则从data.conf中取数据
+client.1.sieID          = 62
+client.1.mo.flowID      = 2
+client.1.report.flowID  = 2
+client.1.flowID         = 100
+client.1.recvTimeout	= 30
+client.1.multiPacket    = 1
+client.1.checkTimes	    = 1
+client.1.checkTransfer  = 1
+client.1.changeLinkId   = 1
+client.1.testNumber 	= 8618611621151
+client.1.protocol	    = SGIP
+client.1.serviceCode	= XXHL
+
+client.2.name           = server
+client.2.type           = 5
+client.2.serverIP      	= 127.0.0.1
+client.2.serverPort     = 7995
+client.2.userName       = 901214
+client.2.userPassword   = ICP
+client.2.connection     = 1
+client.2.activeTestTime = 4000
+client.2.spID		    = 901214
+client.2.sourceID	    = 3000091333
+client.2.version	    = 48
+client.2.flag		    = 2
+client.2.isrID		    = 2
+#如果sieID和flowID配置为0的话则从data.conf中取数据
+client.2.sieID          = 62
+client.2.mo.flowID      = 2
+client.2.report.flowID  = 2
+client.2.flowID         = 100
+client.2.recvTimeout	= 30
+client.2.multiPacket    = 1
+client.2.checkTimes	    = 1
+client.2.checkTransfer  = 1
+client.2.changeLinkId   = 1
+client.2.testNumber 	= 8618611621151
+client.2.protocol	    = SGIP
+client.2.serviceCode	= XXHL
+client.2.exName         = ylxserver
+
+
+client.3.name                   = ylxserver
+client.3.type                   = 11
+client.3.serverIP      	        = 127.0.0.1
+client.3.serverPort             = 1234
+client.3.userName               = 1234
+client.3.userPassword           = ICP
+client.3.testNumber 	        = 8613911093503
+client.3.protocol	            = YLXSMS
+client.3.serviceCode	        = YLXSMS
+client.3.exName	                = server
+

@@ -26,7 +26,7 @@
       To: [field0] <sip:[field0]@[remote_ip]:[remote_port]>
       Call-ID: [call_id]
       CSeq: 1 REGISTER
-      Contact: sip:[field0]@[local_ip]:[local_port]
+      Contact: sip:[field0]@[local_ip]:[local_port];expires=3600
       Content-Length: 0
       Expires: 3600
     ]]>
@@ -34,7 +34,6 @@
 
   
 <!--   <recv response="401" auth="true" next="1"> </recv>
-  
   <label id="1"/>
   <send retrans="500">
   <![CDATA[
@@ -44,7 +43,7 @@
       To: [field0] <sip:[field0]@[remote_ip]:[remote_port]>
       Call-ID: [call_id]
       CSeq: 2 REGISTER
-      Contact: sip:[field0]@[local_ip]:[local_port]
+      Contact: sip:[field0]@[local_ip]:[local_port];expires=3600
       [field2]
       Content-Length: [len]
       Expires: 3600

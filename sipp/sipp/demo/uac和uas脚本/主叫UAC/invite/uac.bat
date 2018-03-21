@@ -1,0 +1,1 @@
+/usr/local/bin/sipp 172.16.1.222:35190 -inf uac.csv -i 172.16.1.154 -p 5070 -sf uac_invite_wihtrtp.xml -r 3 -rp 1000 -m 10000 -trace_err -aa

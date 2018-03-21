@@ -1,0 +1,1 @@
+sipp -i 192.168.146.101 -sf uas_noreg.xml -inf uas.csv 192.168.148.43:5060 -l 1 -trace_msg -trace_screen -trace_err -p 12346 -m 1 -aa

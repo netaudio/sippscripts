@@ -1,0 +1,4 @@
+SEQUENTIAL
+2000;1000;[authentication username=2000 password=2000]
+sipp;1001;[authentication username=sipp password=1234]
+service;1001;[authentication username=service password=1234]

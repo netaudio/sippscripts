@@ -1,0 +1,1 @@
+/usr/local/bin/sipp 172.16.1.222:35190 -inf uas.csv -i 172.16.1.154 -p 5080 -sf uas.xml -trace_err -aa

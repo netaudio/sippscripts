@@ -1,0 +1,141 @@
+----------------------------------------------- 2017-08-20 01:34:27:907.077
+UDP message sent (312 bytes):
+
+REGISTER sip:192.168.27.149 SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:12346;branch=z9hG4bK-21048-1-0
+From: 1000 <sip:1000@192.168.27.149:5060>;tag=1
+To: 1000 <sip:1000@192.168.27.149:5060>
+Call-ID: 1-21048@192.168.27.1
+CSeq: 1 REGISTER
+Contact: sip:1000@192.168.27.1:12346
+Content-Length: 0
+Expires: 3600
+
+
+----------------------------------------------- 2017-08-20 01:34:27:907.711
+UDP message received [438] bytes :
+
+SIP/2.0 401 Unauthorized
+Via: SIP/2.0/UDP 192.168.27.1:12346;branch=z9hG4bK-21048-1-0
+From: 1000 <sip:1000@192.168.27.149:5060>;tag=1
+To: 1000 <sip:1000@192.168.27.149:5060>;tag=126cdd0ab7192480ab624a047c06250e.d9eb
+Call-ID: 1-21048@192.168.27.1
+CSeq: 1 REGISTER
+WWW-Authenticate: Digest realm="192.168.27.149", nonce="599876940000006cd8fef2d58e385297c4f0fcd3d00dc778"
+Server: OpenSIPS (2.2.5 (x86_64/linux))
+Content-Length: 0
+
+
+----------------------------------------------- 2017-08-20 01:34:27:908.261
+UDP message sent (505 bytes):
+
+REGISTER sip:1000@192.168.27.149:5060 SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:12346
+From: 1000 <sip:1000@192.168.27.149:5060>;tag=1
+To: 1000 <sip:1000@192.168.27.149:5060>
+Call-ID: 1-21048@192.168.27.1
+CSeq: 2 REGISTER
+Contact: sip:1000@192.168.27.1:12346
+Authorization: Digest username="1000",realm="192.168.27.149",uri="sip:192.168.27.149:5060",nonce="599876940000006cd8fef2d58e385297c4f0fcd3d00dc778",response="3651df6515f3556335fbeaf29a4e462c",algorithm=MD5
+Content-Length: 0
+Expires: 3600
+
+
+----------------------------------------------- 2017-08-20 01:34:27:909.773
+UDP message received [349] bytes :
+
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP 192.168.27.1:12346
+From: 1000 <sip:1000@192.168.27.149:5060>;tag=1
+To: 1000 <sip:1000@192.168.27.149:5060>;tag=126cdd0ab7192480ab624a047c06250e.2cd9
+Call-ID: 1-21048@192.168.27.1
+CSeq: 2 REGISTER
+Contact: <sip:1000@192.168.27.1:12346>;expires=3600
+Server: OpenSIPS (2.2.5 (x86_64/linux))
+Content-Length: 0
+
+
+----------------------------------------------- 2017-08-20 01:34:27:909.951
+UDP message sent (515 bytes):
+
+INVITE sip:2000@192.168.27.149:5060 SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:12346;branch=z9hG4bK-21048-1-4
+From: 1000 <sip:1000@192.168.27.1:12346>;tag=1
+To: 2000 <sip:2000@192.168.27.149:5060>
+Call-ID: 1-21048@192.168.27.1
+CSeq: 1 INVITE
+Contact: sip:1000@192.168.27.1:12346
+Max-Forwards: 70
+Subject: Performance Test
+Content-Type: application/sdp
+Content-Length:     0
+
+
+----------------------------------------------- 2017-08-20 01:34:27:910.404
+UDP message received [286] bytes :
+
+SIP/2.0 100 Giving a try
+Via: SIP/2.0/UDP 192.168.27.1:12346;branch=z9hG4bK-21048-1-4
+From: 1000 <sip:1000@192.168.27.1:12346>;tag=1
+To: 2000 <sip:2000@192.168.27.149:5060>
+Call-ID: 1-21048@192.168.27.1
+CSeq: 1 INVITE
+Server: OpenSIPS (2.2.5 (x86_64/linux))
+Content-Length: 0
+
+
+----------------------------------------------- 2017-08-20 01:34:27:915.051
+UDP message received [311] bytes :
+
+SIP/2.0 180 Ringing
+Via: SIP/2.0/UDP 192.168.27.1:12346;branch=z9hG4bK-21048-1-4
+From: 1000 <sip:1000@192.168.27.1:12346>;tag=1
+To: 2000 <sip:2000@192.168.27.149:5060>;tag=17297SIPpTag012
+Call-ID: 1-21048@192.168.27.1
+CSeq: 1 INVITE
+Contact: <sip:192.168.27.129:12346;transport=UDP>
+Content-Length: 0
+
+
+-----------------------------------------------
+Unexpected UDP message received:
+
+SIP/2.0 180 Ringing
+Via: SIP/2.0/UDP 192.168.27.1:12346;branch=z9hG4bK-21048-1-4
+From: 1000 <sip:1000@192.168.27.1:12346>;tag=1
+To: 2000 <sip:2000@192.168.27.149:5060>;tag=17297SIPpTag012
+Call-ID: 1-21048@192.168.27.1
+CSeq: 1 INVITE
+Contact: <sip:192.168.27.129:12346;transport=UDP>
+Content-Length: 0
+
+
+----------------------------------------------- 2017-08-20 01:34:27:916.665
+UDP message sent (377 bytes):
+
+ACK sip:2000@192.168.27.149:5060 SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:12346;branch=z9hG4bK-21048-1-4
+From: 1000 <sip:1000@192.168.27.1:12346>;tag=1
+To: 2000 <sip:2000@192.168.27.149:5060>;tag=17297SIPpTag012
+Call-ID: 1-21048@192.168.27.1
+CSeq: 1 ACK
+Contact: <sip:sipp@192.168.27.1:12346;transport=UDP>
+Max-Forwards: 70
+Subject: Performance Test
+Content-Length: 0
+
+
+----------------------------------------------- 2017-08-20 01:34:27:916.838
+UDP message sent (351 bytes):
+
+BYE sip:2000@192.168.27.149:5060 SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:12346;branch=z9hG4bK-21048-1--1
+From: 1000 <sip:1000@192.168.27.1:12346>;tag=1
+To: 2000 <sip:2000@192.168.27.149:5060>;tag=17297SIPpTag012
+Call-ID: 1-21048@192.168.27.1
+CSeq: 2 BYE
+Max-Forwards: 70
+Contact: <sip:sipp@192.168.27.1:12346;transport=UDP>
+Content-Length: 0
+
+

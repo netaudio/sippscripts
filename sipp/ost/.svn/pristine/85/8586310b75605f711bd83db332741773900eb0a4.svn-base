@@ -1,0 +1,183 @@
+sipp: The following events occured:
+2017-08-20	01:19:28:616	1503163168.616056: Dead call NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-477c251aeb608d4b-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag011
+From: "1001"<sip:1001@192.168.27.149>;tag=b31eae73
+Call-ID: NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998730c0000006868761b37f8fecddd7f01c2a174b25da6",uri="sip:192.168.27.129:12346;transport=UDP",response="68698db222f0fdce7b7e882813ae9245",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:19:30:624	1503163170.624151: Dead call NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-477c251aeb608d4b-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag011
+From: "1001"<sip:1001@192.168.27.149>;tag=b31eae73
+Call-ID: NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998730c0000006868761b37f8fecddd7f01c2a174b25da6",uri="sip:192.168.27.129:12346;transport=UDP",response="68698db222f0fdce7b7e882813ae9245",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:19:34:646	1503163174.646044: Dead call NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-477c251aeb608d4b-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag011
+From: "1001"<sip:1001@192.168.27.149>;tag=b31eae73
+Call-ID: NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998730c0000006868761b37f8fecddd7f01c2a174b25da6",uri="sip:192.168.27.129:12346;transport=UDP",response="68698db222f0fdce7b7e882813ae9245",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:19:38:666	1503163178.666977: Dead call NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-477c251aeb608d4b-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag011
+From: "1001"<sip:1001@192.168.27.149>;tag=b31eae73
+Call-ID: NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998730c0000006868761b37f8fecddd7f01c2a174b25da6",uri="sip:192.168.27.129:12346;transport=UDP",response="68698db222f0fdce7b7e882813ae9245",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:19:42:692	1503163182.692413: Dead call NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-477c251aeb608d4b-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag011
+From: "1001"<sip:1001@192.168.27.149>;tag=b31eae73
+Call-ID: NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998730c0000006868761b37f8fecddd7f01c2a174b25da6",uri="sip:192.168.27.129:12346;transport=UDP",response="68698db222f0fdce7b7e882813ae9245",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:19:46:747	1503163186.747105: Dead call NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-477c251aeb608d4b-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag011
+From: "1001"<sip:1001@192.168.27.149>;tag=b31eae73
+Call-ID: NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998730c0000006868761b37f8fecddd7f01c2a174b25da6",uri="sip:192.168.27.129:12346;transport=UDP",response="68698db222f0fdce7b7e882813ae9245",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:19:50:768	1503163190.768996: Dead call NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-477c251aeb608d4b-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag011
+From: "1001"<sip:1001@192.168.27.149>;tag=b31eae73
+Call-ID: NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998730c0000006868761b37f8fecddd7f01c2a174b25da6",uri="sip:192.168.27.129:12346;transport=UDP",response="68698db222f0fdce7b7e882813ae9245",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:19:54:785	1503163194.785778: Dead call NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-477c251aeb608d4b-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag011
+From: "1001"<sip:1001@192.168.27.149>;tag=b31eae73
+Call-ID: NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998730c0000006868761b37f8fecddd7f01c2a174b25da6",uri="sip:192.168.27.129:12346;transport=UDP",response="68698db222f0fdce7b7e882813ae9245",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:19:58:805	1503163198.805991: Dead call NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-477c251aeb608d4b-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag011
+From: "1001"<sip:1001@192.168.27.149>;tag=b31eae73
+Call-ID: NGFjZDBiM2IwZjI4OWNmMjkwNjgxMTU2MzBhNWY4ZmI.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998730c0000006868761b37f8fecddd7f01c2a174b25da6",uri="sip:192.168.27.129:12346;transport=UDP",response="68698db222f0fdce7b7e882813ae9245",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:21:29:641	1503163289.641049: Dead call NGQ3YjYyYTdhODhlZWMzZmUyMTNhMDFmZjhkYzQwN2Y. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-700e8e6c8509ab6e-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag012
+From: "1001"<sip:1001@192.168.27.149>;tag=2d561747
+Call-ID: NGQ3YjYyYTdhODhlZWMzZmUyMTNhMDFmZjhkYzQwN2Y.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998734c0000006acb38d8522916ecd71b49628130bdfa2c",uri="sip:192.168.27.129:12346;transport=UDP",response="9b674986404024a43bc19983334dcd26",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:21:31:651	1503163291.651367: Dead call NGQ3YjYyYTdhODhlZWMzZmUyMTNhMDFmZjhkYzQwN2Y. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-700e8e6c8509ab6e-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag012
+From: "1001"<sip:1001@192.168.27.149>;tag=2d561747
+Call-ID: NGQ3YjYyYTdhODhlZWMzZmUyMTNhMDFmZjhkYzQwN2Y.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998734c0000006acb38d8522916ecd71b49628130bdfa2c",uri="sip:192.168.27.129:12346;transport=UDP",response="9b674986404024a43bc19983334dcd26",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:21:35:667	1503163295.667369: Dead call NGQ3YjYyYTdhODhlZWMzZmUyMTNhMDFmZjhkYzQwN2Y. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-700e8e6c8509ab6e-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag012
+From: "1001"<sip:1001@192.168.27.149>;tag=2d561747
+Call-ID: NGQ3YjYyYTdhODhlZWMzZmUyMTNhMDFmZjhkYzQwN2Y.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998734c0000006acb38d8522916ecd71b49628130bdfa2c",uri="sip:192.168.27.129:12346;transport=UDP",response="9b674986404024a43bc19983334dcd26",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.
+2017-08-20	01:21:39:731	1503163299.731855: Dead call NGQ3YjYyYTdhODhlZWMzZmUyMTNhMDFmZjhkYzQwN2Y. (successful), received 'BYE sip:192.168.27.129:12346;transport=UDP SIP/2.0
+Via: SIP/2.0/UDP 192.168.27.1:63600;branch=z9hG4bK-d87543-700e8e6c8509ab6e-1--d87543-;rport
+Max-Forwards: 70
+Contact: <sip:1001@192.168.27.1:63600>
+To: "2000"<sip:2000@192.168.27.149>;tag=17214SIPpTag012
+From: "1001"<sip:1001@192.168.27.149>;tag=2d561747
+Call-ID: NGQ3YjYyYTdhODhlZWMzZmUyMTNhMDFmZjhkYzQwN2Y.
+CSeq: 3 BYE
+Proxy-Authorization: Digest username="1001",realm="192.168.27.149",nonce="5998734c0000006acb38d8522916ecd71b49628130bdfa2c",uri="sip:192.168.27.129:12346;transport=UDP",response="9b674986404024a43bc19983334dcd26",algorithm=MD5
+User-Agent: eyeBeam release 1011d stamp 40820
+Reason: SIP;description="User Hung Up"
+Content-Length: 0
+
+'.

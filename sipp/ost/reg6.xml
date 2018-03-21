@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE scenario SYSTEM "sipp.dtd">
+
+
+<!--                                                                    -->
+<!--                 ims 'uas' register                                 -->
+<!--                                                                    -->
+
+<scenario name="uas register ">
+  
+    <recv request="REGISTER" rtd="true" crlf="true" >
+  </recv>
+  
+  <send rtd="true">
+    <![CDATA[
+
+      SIP/2.0 401 Unauthorized
+      [last_Via:]
+      [last_From:]
+      [last_To:];tag=[call_number]
+      [last_Call-ID:]
+      [last_CSeq:]
+      Contact: <sip:[local_ip]:[local_port];transport=[transport]>;expires=90
+      P-Associated-URI: <sip:hisuntest1@[local_ip]>
+      Content-Length: 0
+      WWW-Authenticate: Digest realm="c1.huawei.com",nonce="P6BbVZ0Rc5+0VQqlS7Wogg==",algorithm=MD5
+
+    ]]>
+  </send>
+
+   <recv request="REGISTER" rtd="true" crlf="true" >
+  </recv>
+
+  <send rtd="true">
+    <![CDATA[
+
+      SIP/2.0 200 OK
+      [last_Via:]
+      [last_From:]
+      [last_To:];tag=[call_number]
+      [last_Call-ID:]
+      [last_CSeq:]
+      Contact: <sip:[local_ip]:[local_port];transport=[transport]>;expires=90
+      P-Associated-URI: <sip:hisuntest1@[local_ip]>
+      Content-Length: 0
+
+    ]]>
+  </send>
+
+  <ResponseTimeRepartition value="10, 20, 30, 40, 50, 100, 150, 200"/>
+  <CallLengthRepartition value="10, 50, 100, 500, 1000, 5000, 10000"/>
+
+</scenario>
+

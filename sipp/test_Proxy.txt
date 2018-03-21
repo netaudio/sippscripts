@@ -1,0 +1,78 @@
+dispatcher.list
+
+1 sip:192.168.101.8:6060
+2 sip:192.168.101.106:5060
+
+第一个路由配置了freeswitch,freeswitch的端口改到6060
+第二个路由配置到我的笔记本上
+
+
+kamailio.cfg
+
+
+在 kamailio.cfg 修改相应配置
+
+修改日志:
+log_facility=LOG_LOCAL1
+
+载入分发程序模块和分发列表文件
+
+loadmodule "dispatcher.so"
+modparam("dispatcher", "list_file", "/usr/local/etc/kamailio/dispatcher.list")
+
+
+
+
+在 request_route 中增加invite路由
+    
+    
+    	route(INVITE);
+
+
+增加路由执行脚本在文件:
+
+    route[INVITE]{
+
+        xlog("LOG_LOCAL0","L_ERR","XXXXX 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111\n");
+
+        if (!mf_process_maxfwd_header("10")) {
+                xlog("LOG_LOCAL4","L_ERR","XXXXX mf_process_maxfwd_header11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111\n");
+                sl_send_reply("483","Too Many Hops");
+                exit;
+        }
+        if (uri=~"^sip:81[0-9]+@192.168.101.8$") {
+            xlog("LOG_LOCAL4","L_ERR","XXXXX uri 1  11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111\n");
+            if (is_method("INVITE")) {
+                ds_select_dst("1", "0");
+                forward();
+                exit;
+            }
+        }
+        if (uri=~"^sip:82[0-9]+@192.168.101.8$") {
+            xlog("LOG_LOCAL4","L_ERR","XXXXX uri 2  1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111\n");
+
+            if (is_method("INVITE")) {
+                        ds_select_dst("2", "0");
+                        forward();
+                        exit;
+                }
+        }
+
+#        xlog("LOG_LOCAL4","L_ERR","XXXXX uri 404  1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111\n");
+#        sl_send_reply("404","Not here");
+#        exit;
+    }
+
+    
+ 
+
+
+分离kamailio的日志
+修改 /etc/rsyslog.conf
+增加一行
+
+local1.* /var/log/kamailio.log
+
+
+
+    
